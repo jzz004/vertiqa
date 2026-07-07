@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestão de Pátio - Simulação Setor X</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; margin: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #0056b3; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        .entrada { background: #d4edda; color: #155724; }
+        .baixa { background: #f8d7da; color: #721c24; }
+        .historico-lista { list-style: none; padding: 0; }
+        .historico-lista li { padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; display: flex; justify-content: space-between; }
+        .btn-acao { background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-acao:hover { background: #0056b3; }
+        .btn-retirar { background: #dc3545; }
+        .btn-retirar:hover { background: #bd2130; }
+        /* ==========================================================================
+   VARIÁVEIS GLOBAIS DE CORES E ESTILOS (SISTEMA INDUSTRIAL/WMS - DARK MODE)
+   ========================================================================== */
+:root {
+    --bg-primary: #090d16; /* Fundo preto/grafite ultra profundo */
+    --bg-card: #111827;    /* Fundo dos cards em grafite escuro */
+    --text-main: #000000;  /* Texto principal invertido para branco/gelo */
+    --text-muted: #94a3b8; /* Texto técnico em cinza claro legível */
+    
+    /* Identidade Técnica Mantida e Viva */
+    --color-primary: #3b82f6; /* Azul de precisão */
+    --color-primary-hover: #2563eb;
+    --color-orange: #ea580c;  /* Alerta secundário */
+    --color-success: #10b981; /* Verde operacional */
+    
+    /* Geometria Seca (Menos arredondada, mais industrial) */
+    --radius-md: 4px;
+    --radius-lg: 6px;
+    
+    /* Sombras Funcionais Ajustadas para Telas Escuras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    --transition: all 0.15s ease-in-out;
+}
+
+/* ==========================================================================
+   RESET E CONFIGURAÇÕES DE CHÃO DE FÁBRICA
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    -webkit-font-smoothing: antialiased;
+    
+    /* Compensação crucial para a Navbar Fixa no topo */
+    padding-top: 94px; 
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+/* Container de simulação técnica */
+.app-container {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ==========================================================================
+   NAVBAR PADRÃO INDUSTRIAL FIXA (TOP-BAR)
+   ========================================================================== */
+.ind-navbar {
+    width: 100%;
+    background-color: #111827; /* Casamento perfeito com o fundo dos cards */
+    border-bottom: 3px solid var(--color-primary); /* Faixa azul técnica */
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    
+    /* Fixação absoluta no topo da interface */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+}
+
+.ind-nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+    padding: 0 20px;
+}
+
+/* Bloco Identificador / Logo */
+.ind-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ind-nav-logo {
+    height: 42px;
+    width: auto;
+    object-fit: contain;
+    border-right: 1px solid #374151; /* Linha divisória adaptada */
+    padding-right: 12px;
+}
+
+.ind-brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.ind-company {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+}
+
+.ind-system-type {
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* Links em formato de Abas de Monitor */
+.ind-nav-links {
+    display: flex;
+    height: 100%;
+    align-items: flex-end;
+}
+
+.ind-nav-item {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 0 20px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-top: 3px solid transparent;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    transition: var(--transition);
+}
+
+.ind-nav-item:hover {
+    color: #ffffff;
+    background-color: #1f2937;
+    border-top-color: var(--text-muted);
+}
+
+.ind-nav-item.active {
+    color: #ffffff;
+    background-color: #1f2937;
+    border-top-color: var(--color-primary); /* Traço azul ativo */
+}
+
+.ind-icon {
+    font-size: 14px;
+}
+
+/* Indicador de Status de Rede */
+.ind-nav-status {
+    display: flex;
+    align-items: center;
+}
+
+.ind-status-badge {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ind-status-text {
+    color: #cbd5e1;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.ind-pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-success);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--color-success);
+    position: relative;
+}
+
+/* ==========================================================================
+   PAINEL DE CONTEÚDO / COMPONENTES INTERNOS
+   ========================================================================== */
+
+/* Header Legado (Interno do Card se aplicável) */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px;
+    border-bottom: 2px solid #1f2937;
+    margin-bottom: 16px;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icon-logo {
+    font-size: 24px;
+    color: var(--color-primary);
+}
+
+.main-header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-main);
+}
+
+.main-header p {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #1f2937;
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #374151;
+    color: var(--text-main);
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    position: relative;
+}
+.status-indicator.online {
+    background-color: var(--color-success);
+}
+.status-indicator.online::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: var(--color-success);
+    animation: pulse 2s infinite;
+    top: 0;
+    left: 0;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(2.2); opacity: 0; }
+}
+
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Bloco Informativo de Operações */
+.welcome-card {
+    background: #1f2937; /* Grafite escuro refinado */
+    color: #ffffff;
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid #374151;
+    border-left: 4px solid var(--color-primary);
+}
+
+.welcome-card h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.2px;
+}
+
+.welcome-card p {
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+/* Lista / Grid de Menus Técnicos */
+.menu-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu-item-card {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-card);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid #1f2937;
+    transition: var(--transition);
+}
+
+.menu-item-card:hover {
+    transform: translateX(2px);
+    box-shadow: var(--shadow-md);
+    border-color: #4b5563;
+    background-color: #1f2937;
+}
+
+.menu-item-card.btn-scan {
+    border-left: 4px solid var(--color-primary);
+}
+
+.card-icon {
+    font-size: 20px;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    margin-right: 16px;
+    border: 1px solid transparent;
+}
+
+/* Ícones ajustados para não estourarem no fundo escuro */
+.card-icon.text-blue {
+    background-color: #1e3a8a;
+    color: #93c5fd;
+    border-color: #2563eb;
+}
+
+.card-icon.text-orange {
+    background-color: #7c2d12;
+    color: #ffedd5;
+    border-color: #ea580c;
+}
+
+.menu-item-card:hover .card-icon.text-blue {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.menu-item-card:hover .card-icon.text-orange {
+    background-color: var(--color-orange);
+    color: #ffffff;
+}
+
+.card-info {
+    flex: 1;
+}
+
+.card-info h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+    color: var(--text-main);
+}
+
+.card-info p {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.arrow-icon {
+    color: #4b5563;
+    font-size: 12px;
+    transition: var(--transition);
+}
+
+.menu-item-card:hover .arrow-icon {
+    color: var(--text-main);
+    transform: translateX(2px);
+}
+
+/* Rodapé do Sistema */
+.main-footer {
+    text-align: center;
+    padding: 24px 8px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    border-top: 1px solid #1f2937;
+    margin-top: 20px;
+}
+    </style>
+</head>
+<body>
+
+<nav class="ind-navbar">
+    <div class="ind-nav-container">
+        <div class="ind-nav-brand">
+            <img src="img/foto.png" alt="Vertiqa Logo" class="ind-nav-logo">
+            <div class="ind-brand-text">
+                <span class="ind-company">VERTIQA</span>
+                <span class="ind-system-type">SISTEMA DE GESTÃO DE PÁTIO / WMS</span>
+            </div>
+        </div>
+
+        <div class="ind-nav-links">
+            <a href="index.html" class="ind-nav-item">
+                <span class="ind-icon">⚙️</span> PAINEL PRINCIPAL
+            </a>
+            <a href="produtos.html" class="ind-nav-item active">
+                <span class="ind-icon">📦</span> INVENTÁRIO DE MATERIAIS
+            </a>
+            <a href="pedidos.html" class="ind-nav-item">
+                <span class="ind-icon">📜</span> HISTÓRICO
+            </a>
+        </div>
+
+        <div class="ind-nav-status">
+            <div class="ind-status-badge">
+                <span class="ind-pulse-dot"></span>
+                <span class="ind-status-text">TERMINAL ONLINE</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1 id="nome-setor">Setor X (Corredor Central - Bloco B)</h1>
+        <span class="badge entrada">📲 QR CODE SIMULADO OK</span>
+    </div>
+
+    <h3>📦 Materiais Alocados (Simulação de Leitura)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Qtd Atual</th>
+                <th>Ações no Pátio</th>
+            </tr>
+        </thead>
+        <tbody id="tabela-produtos">
+            </tbody>
+    </table>
+
+    <h3 style="margin-top: 40px;">📜 Histórico de Auditoria do Setor X</h3>
+    <ul id="lista-historico" class="historico-lista">
+        </ul>
+</div>
+
+<script>
+    // Banco de dados fake salvo direto na memória da página
+    let produtos = [
+        { id: 10, nome: "Tambor de Lubrificante", quantidade: 15 },
+        { id: 11, nome: "Palete de Plástico Reforçado", quantidade: 42 },
+        { id: 12, nome: "Caixa de Ferramentas Industriais", quantidade: 8 },
+        { id: 13, nome: "Bobina de Fio de Cobre", quantidade: 5 }
+    ];
+
+    let historico = [
+        { produto: "Tambor de Lubrificante", quantidade: 5, tipo: "ENTRADA", hora: "11:30" },
+        { produto: "Palete de Plástico Reforçado", quantidade: 10, tipo: "BAIXA", hora: "09:15" }
+    ];
+
+    // Renderiza tudo na tela
+    function atualizarTela() {
+        // 1. Renderiza Tabela
+        const tabela = document.getElementById("tabela-produtos");
+        tabela.innerHTML = "";
+        produtos.forEach(p => {
+            tabela.innerHTML += `
+                <tr>
+                    <td><strong>${p.nome}</strong></td>
+                    <td><span style="font-size: 16px; font-weight: bold;">${p.quantidade}</span> un</td>
+                    <td>
+                        <button class="btn-acao" onclick="alterarEstoque(${p.id}, 1, 'ENTRADA')">＋ Adicionar</button>
+                        <button class="btn-acao btn-retirar" onclick="alterarEstoque(${p.id}, 1, 'BAIXA')">－ Retirar</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        // 2. Renderiza Histórico
+        const lista = document.getElementById("lista-historico");
+        lista.innerHTML = "";
+        historico.forEach(h => {
+            const classeBadge = h.tipo === 'ENTRADA' ? 'entrada' : 'baixa';
+            lista.innerHTML += `
+                <li>
+                    <div>
+                        <span class="badge ${classeBadge}">${h.tipo}</span>
+                        <strong>${h.quantidade} un.</strong> de <em>${h.produto}</em>
+                    </div>
+                    <span style="color: #888;"><small>Hoje às ${h.hora}</small></span>
+                </li>
+            `;
+        });
+    }
+
+    // Processa os cliques de adicionar e retirar
+    function alterarEstoque(id, qtd, tipo) {
+        let p = produtos.find(item => item.id === id);
+        if (!p) return;
+
+        if (tipo === 'BAIXA') {
+            if (p.quantidade < qtd) {
+                alert("Erro: Estoque insuficiente para essa baixa!");
+                return;
+            }
+            p.quantidade -= qtd;
+        } else {
+            p.quantidade += qtd;
+        }
+
+        // Adiciona o registro no histórico
+        let agora = new Date();
+        let horaFormatada = agora.getHours().toString().padStart(2, '0') + ':' + agora.getMinutes().toString().padStart(2, '0');
+        
+        historico.unshift({
+            produto: p.nome,
+            quantidade: qtd,
+            tipo: tipo,
+            hora: horaFormatada
+        });
+
+        atualizarTela();
+    }
+
+    // Inicializa a página
+    window.onload = atualizarTela;
+</script>
+</body>
+</html>

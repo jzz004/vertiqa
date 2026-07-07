@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Pátio — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="ind-navbar">
+    <div class="ind-nav-container">
+        <div class="ind-nav-brand">
+          <img src="img/foto.png" alt="Vertiqa Logo" class="ind-nav-logo">
+            <div class="ind-brand-text">
+                <span class="ind-company">VERTIQA</span>
+                <span class="ind-system-type">SISTEMA DE GESTÃO DE PÁTIO / WMS</span>
+            </div>
+        </div>
+
+        <div class="ind-nav-links">
+            <a href="index.html" class="ind-nav-item active">
+                <span class="ind-icon">⚙️</span> PAINEL PRINCIPAL
+            </a>
+            <a href="produtos.html" class="ind-nav-item">
+                <span class="ind-icon">📦</span> INVENTÁRIO DE MATERIAIS
+            </a>
+            <a href="scanner.html" class="ind-nav-item">
+                <span class="ind-icon">📷</span> LEITOR QR CODE
+            </a>
+        </div>
+
+        <div class="ind-nav-status">
+            <div class="ind-status-badge">
+                <span class="ind-pulse-dot"></span>
+                <span class="ind-status-text">TERMINAL ONLINE</span>
+            </div>
+        </div>
+    </div>
+</nav>
+    <div class="app-container">
+        <header class="main-header">
+            <div class="header-logo">
+                <i class="fa-solid fa-boxes-stacked icon-logo"></i>
+                <div>
+                    <h1>Pátio-QR</h1>
+                    <p>Sistema de Organização Inteligente</p>
+                </div>
+            </div>
+            <div class="user-profile">
+                <span class="status-indicator online"></span>
+                <span>Operador</span>
+            </div>
+        </header>
+
+        <main class="dashboard">
+            <section class="welcome-card">
+                <h2>Bem-vindo ao Painel de Controle</h2>
+                <p>Utilize os atalhos abaixo para gerenciar os estoques, escanear placas de identificação nos setores ou processar novas ordens de movimentação no pátio.</p>
+            </section>
+
+            <section class="menu-grid">
+                
+                <a href="scanner.html" class="menu-item-card btn-scan">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-qrcode"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Escanear Pátio</h3>
+                        <p>Aponte a câmera para ler o QR Code do local</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                </a>
+
+                <a href="produtos.html" class="menu-item-card">
+                    <div class="card-icon text-blue">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Consultar Estoque</h3>
+                        <p>Visualizar todos os produtos por setor</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                </a>
+
+                <a href="pedidos.html" class="menu-item-card">
+                    <div class="card-icon text-orange">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Pedidos & Ordens</h3>
+                        <p>Histórico e novas requisições pendentes</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                </a>
+
+            </section>
+        </main>
+
+        <footer class="main-footer">
+            <p>&copy; 2026 — Sistema de Organização de Pátio v2.0</p>
+        </footer>
+    </div>
+
+</body>
+</html>

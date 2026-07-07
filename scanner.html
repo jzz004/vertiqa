@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pátio-QR — Escanear Setor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <style>
+        /* Estilos específicos para a experiência do Scanner */
+        .scanner-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #cbd5e1; /* Ajustado para borda industrial */
+            text-align: center;
+        }
+
+        .scanner-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px auto;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background-color: #0f172a; /* Fundo escuro enquanto a câmera liga */
+        }
+
+        /* Estilizando o container interno que a biblioteca html5-qrcode cria */
+        #reader {
+            width: 100% !important;
+            border: none !important;
+        }
+
+        /* Removendo bordas e caixas feias padrão da biblioteca */
+        #reader __video {
+            object-fit: cover !important;
+            border-radius: var(--radius-md);
+        }
+
+        #reader button {
+            background-color: var(--color-primary) !important;
+            color: white !important;
+            border: none !important;
+            padding: 10px 20px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            border-radius: var(--radius-md) !important; /* Bordas industriais retas */
+            cursor: pointer !important;
+            margin: 10px 0 !important;
+            transition: var(--transition) !important;
+        }
+        
+        #reader button:hover {
+            background-color: var(--color-primary-hover) !important;
+        }
+
+        .status-box {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            background-color: #f8fafc;
+            font-size: 14px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-secondary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: #f1f5f9;
+            color: #334155;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="ind-navbar">
+        <div class="ind-nav-container">
+            <div class="ind-nav-brand">
+               <img src="img/foto.png" alt="Vertiqa Logo" class="ind-nav-logo">
+                <div class="ind-brand-text">
+                    <span class="ind-company">VERTIQA</span>
+                    <span class="ind-system-type">SISTEMA DE GESTÃO DE PÁTIO / WMS</span>
+                </div>
+            </div>
+
+            <div class="ind-nav-links">
+                <a href="index.html" class="ind-nav-item">
+                    <span class="ind-icon">⚙️</span> PAINEL PRINCIPAL
+                </a>
+                <a href="produtos.html" class="ind-nav-item">
+                    <span class="ind-icon">📦</span> INVENTÁRIO DE MATERIAIS
+                </a>
+                <a href="scanner.html" class="ind-nav-item active">
+                    <span class="ind-icon">📷</span> LEITOR QR CODE
+                </a>
+            </div>
+
+            <div class="ind-nav-status">
+                <div class="ind-status-badge">
+                    <span class="ind-pulse-dot"></span>
+                    <span class="ind-status-text">TERMINAL ONLINE</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <main class="dashboard">
+            <div class="scanner-card">
+                
+                <div class="scanner-wrapper">
+                    <div id="reader"></div>
+                </div>
+
+                <div class="status-box" id="statusLeitura">
+                    <i class="fa-solid fa-circle-notch fa-spin text-blue"></i>
+                    <span>Aguardando permissão da câmara...</span>
+                </div>
+
+                <div class="nav-buttons">
+                    <a href="index.html" class="btn-secondary">
+                        <i class="fa-solid fa-house"></i> Voltar ao Painel Inicial
+                    </a>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <p>&copy; 2026 — Sistema de Organização de Pátio v2.0</p>
+        </footer>
+    </div>
+
+    <script>
+        function onScanSuccess(decodedText, decodedResult) {
+            // Altera o status visual para dar feedback imediato de sucesso
+            const statusBox = document.getElementById('statusLeitura');
+            statusBox.innerHTML = `<i class="fa-solid fa-circle-check" style="color: var(--color-success)"></i> <b>Código lido! Redirecionando...</b>`;
+            statusBox.style.backgroundColor = "#f0fdf4";
+
+            // Para o scanner para poupar processamento/bateria
+            html5QrcodeScanner.clear().then(() => {
+                // Redireciona para a página de listagem enviando o token lido na URL
+                window.location.href = `produtos.html?local=${encodeURIComponent(decodedText)}`;
+            }).catch(error => {
+                console.error("Erro ao limpar scanner:", error);
+                window.location.href = `produtos.html?local=${encodeURIComponent(decodedText)}`;
+            });
+        }
+
+        function onScanFailure(error) {
+            // Erros de leitura rápidos por frame são normais, ignoramos para não poluir o console
+        }
+
+        // Configuração otimizada para câmaras de telemóvel/celular
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", 
+            { 
+                fps: 15, 
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0
+            }
+        );
+        
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+
+        // Atualiza a mensagem assim que a biblioteca carrega os botões iniciais
+        setTimeout(() => {
+            const statusBox = document.getElementById('statusLeitura');
+            statusBox.innerHTML = `<i class="fa-solid fa-camera"></i> Posicione o QR Code dentro do quadrado`;
+        }, 1500);
+    </script>
+</body>
+</html>
